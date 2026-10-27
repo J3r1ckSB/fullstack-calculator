@@ -7,6 +7,21 @@ A calculator with a React and TypeScript interface and a Go REST API that does t
   <img src="docs/screenshot-dark.png" alt="The same calculator in dark mode" width="300">
 </p>
 
+## Where each requirement is met
+
+| Requirement                                                  | Where                                                                                                          |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Addition, subtraction, multiplication, division              | `POST /api/v1/add`, `subtract`, `multiply`, `divide`. Keys `+ − × ÷`.                                          |
+| Exponentiation, square root, percentage (optional)           | `POST /api/v1/power`, `sqrt`, `percentage`. Keys `xʸ √ %`, on the second row.                                  |
+| The frontend consumes the backend API                        | Every operation is computed by the API. The interface collects input and formats the answer.                   |
+| Input validation and error handling                          | The keypad only accepts valid numbers. The server validates every request; see the error table in [API](#api). |
+| Responsive design                                            | One card width from 320 px phones up. Light and dark themes follow the system setting.                         |
+| REST API that returns JSON                                   | [API](#api).                                                                                                   |
+| Unit tests for both layers, coverage report                  | [Tests and coverage](#tests-and-coverage).                                                                     |
+| Setup, how to run each layer, API examples, design decisions | [Local development](#local-development), [API](#api), [Design decisions](#design-decisions-and-assumptions).   |
+| Dockerfile (optional)                                        | [Quick start with Docker](#quick-start-with-docker). One container serves the interface and the API.           |
+| Prompts used                                                 | [How this was built](#how-this-was-built).                                                                     |
+
 ## Quick start with Docker
 
 ```sh
