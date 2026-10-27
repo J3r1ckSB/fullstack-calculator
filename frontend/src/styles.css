@@ -207,6 +207,10 @@ body {
   color: var(--key-equals-text);
 }
 
+.key-equals:focus-visible {
+  outline-color: var(--text);
+}
+
 .key-wide {
   grid-column: span 2;
 }
