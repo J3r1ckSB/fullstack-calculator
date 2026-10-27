@@ -80,7 +80,7 @@ ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/httpapi	1.184s	co
 
 `cmd/server` is low because only `loadConfig` has tests. `main` and `run` (listening and graceful shutdown) do not.
 
-Frontend. The table lists every file, fully covered ones included: `vite.config.ts` does not set `skipFull`, so Vitest keeps its default of showing them. Vitest hides fully covered files on its own only when it detects an AI coding agent running it. `styles.css` is listed with zeros because `include` takes everything under `src/`.
+Frontend, over the TypeScript sources (`src/main.tsx` and the tests are excluded):
 
 ```text
 -------------------|---------|----------|---------|---------|-------------------
@@ -90,7 +90,6 @@ All files          |   98.61 |     97.1 |     100 |   99.45 |
  src               |     100 |      100 |     100 |     100 |
   App.tsx          |     100 |      100 |     100 |     100 |
   messages.ts      |     100 |      100 |     100 |     100 |
-  styles.css       |       0 |        0 |       0 |       0 |
  src/api           |     100 |    97.61 |     100 |     100 |
   client.ts        |     100 |    97.61 |     100 |     100 | 130
  src/calculator    |     100 |    99.09 |     100 |     100 |
