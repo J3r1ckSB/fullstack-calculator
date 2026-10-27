@@ -60,10 +60,12 @@ body {
 }
 
 /* The card's width is fixed here, never by its content. The top margin keeps
-   the card's top edge still when the notice makes the card taller. */
+   the card's top edge still when the notice makes the card taller, and gives
+   way on short screens: 38.5rem is the tallest card (the notice wraps to
+   three lines at 320px) plus the body padding, so the keypad stays on screen. */
 #root {
   width: min(100%, 22.5rem);
-  margin-top: 8dvh;
+  margin-top: clamp(0px, 100dvh - 38.5rem, 8dvh);
 }
 
 .visually-hidden {
