@@ -137,6 +137,45 @@ func TestStaticFiles(t *testing.T) {
 	})
 }
 
+func TestStaticDirectoryWithoutIndexIsNotListed(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte("<!doctype html>"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(dir, "assets"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "assets", "app.js"), []byte("console.log(1)"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	h := NewHandler(Options{Logger: discardLogger(), StaticDir: dir})
+
+	t.Run("directory without index.html is a 404", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/assets/", nil))
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("status = %d, want 404", rec.Code)
+		}
+		if strings.Contains(rec.Body.String(), "app.js") {
+			t.Errorf("body lists the directory: %q", rec.Body)
+		}
+	})
+	t.Run("file inside that directory is served", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/assets/app.js", nil))
+		if rec.Code != http.StatusOK || rec.Body.String() != "console.log(1)" {
+			t.Errorf("got %d %q, want 200 console.log(1)", rec.Code, rec.Body)
+		}
+	})
+	t.Run("root with index.html is still served", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+		if rec.Code != http.StatusOK || rec.Body.String() != "<!doctype html>" {
+			t.Errorf("got %d %q, want 200 index.html", rec.Code, rec.Body)
+		}
+	})
+}
+
 func TestRootWithoutStaticDir(t *testing.T) {
 	h := NewHandler(Options{Logger: discardLogger()})
 	rec := httptest.NewRecorder()

@@ -3,8 +3,10 @@ package httpapi
 
 import (
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"net/http"
+	"path"
 )
 
 // Options configures NewHandler.
@@ -58,7 +60,7 @@ func rootHandler(staticDir string) http.Handler {
 	if staticDir == "" {
 		return http.HandlerFunc(notFound)
 	}
-	files := http.FileServer(http.Dir(staticDir))
+	files := http.FileServer(noListingDir{http.Dir(staticDir)})
 	notAllowed := methodNotAllowed("GET, HEAD")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet && r.Method != http.MethodHead {
@@ -67,4 +69,30 @@ func rootHandler(staticDir string) http.Handler {
 		}
 		files.ServeHTTP(w, r)
 	})
+}
+
+// noListingDir fails to open directories without index.html, so they 404 instead of listing.
+type noListingDir struct {
+	http.FileSystem
+}
+
+func (d noListingDir) Open(name string) (http.File, error) {
+	f, err := d.FileSystem.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	info, err := f.Stat()
+	if err != nil {
+		f.Close()
+		return nil, err
+	}
+	if info.IsDir() {
+		index, err := d.FileSystem.Open(path.Join(name, "index.html"))
+		if err != nil {
+			f.Close()
+			return nil, fs.ErrNotExist
+		}
+		index.Close()
+	}
+	return f, nil
 }
