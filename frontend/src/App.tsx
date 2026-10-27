@@ -1,7 +1,8 @@
+import { createCalculatorClient } from './api/client'
+import { Calculator } from './components/Calculator'
+
+const client = createCalculatorClient()
+
 export default function App() {
-  return (
-    <main>
-      <h1>Calculator</h1>
-    </main>
-  )
+  return <Calculator client={client} />
 }

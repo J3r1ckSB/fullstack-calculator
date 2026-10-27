@@ -3,7 +3,18 @@ import type { BinaryOperation, ErrorKind, MathErrorCode } from './api/client'
 const unexpectedAnswer =
   'The calculator service sent an unexpected answer. Try again.'
 
+const operatorSymbols = {
+  add: '+',
+  subtract: '−',
+  multiply: '×',
+  divide: '÷',
+  power: '^',
+  percentage: '% of',
+} satisfies Record<BinaryOperation, string>
+
 export const messages = {
+  heading: 'Calculator',
+
   mathErrors: {
     division_by_zero: "Can't divide by zero",
     negative_square_root: 'No real square root',
@@ -25,12 +36,21 @@ export const messages = {
 
   errorHint: 'Enter a number or press AC to start over',
 
-  operatorSymbols: {
-    add: '+',
-    subtract: '−',
-    multiply: '×',
-    divide: '÷',
-    power: '^',
-    percentage: '% of',
-  } satisfies Record<BinaryOperation, string>,
+  operatorSymbols,
+
+  // Digit keys are labelled by their digit and need no name of their own.
+  keys: {
+    clear: { label: 'AC', name: 'all clear' },
+    backspace: { label: '⌫', name: 'backspace' },
+    toggleSign: { label: '±', name: 'toggle sign' },
+    divide: { label: operatorSymbols.divide, name: 'divide' },
+    squareRoot: { label: '√', name: 'square root' },
+    power: { label: 'xʸ', name: 'power' },
+    percentage: { label: '%', name: 'percent of' },
+    multiply: { label: operatorSymbols.multiply, name: 'multiply' },
+    subtract: { label: operatorSymbols.subtract, name: 'subtract' },
+    add: { label: operatorSymbols.add, name: 'add' },
+    equals: { label: '=', name: 'equals' },
+    decimal: { label: '.', name: 'decimal point' },
+  },
 } as const
