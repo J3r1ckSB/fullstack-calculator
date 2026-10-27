@@ -115,7 +115,7 @@ describe('Calculator', () => {
     await click(name.decimal, '5', name.decimal)
     expectValue('1.5')
     await click(name.toggleSign)
-    expectValue('-1.5')
+    expectValue('−1.5')
     await click(name.toggleSign)
     expectValue('1.5')
   })

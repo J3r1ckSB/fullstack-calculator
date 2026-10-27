@@ -219,7 +219,7 @@ describe('entering digits', () => {
   it('does not count the sign towards the cap', () => {
     const full = run([toggleSign, digits('9'.repeat(15))])
 
-    expect(showing(full).display).toBe(`-${'9'.repeat(15)}`)
+    expect(showing(full).display).toBe(`−${'9'.repeat(15)}`)
     expect(run([digits('9')], full)).toBe(full)
   })
 
@@ -263,15 +263,19 @@ describe('decimal point', () => {
 
 describe('toggle sign', () => {
   it('flips the sign of a typed entry', () => {
-    expect(showing(run([digits('5'), toggleSign])).display).toBe('-5')
+    expect(showing(run([digits('5'), toggleSign])).display).toBe('−5')
     expect(showing(run([digits('5'), toggleSign, toggleSign])).display).toBe(
       '5',
     )
   })
 
+  it('shows the negative sign as U+2212 on a typed number', () => {
+    expect(showing(run([digits('12'), toggleSign])).display).toBe('−12')
+  })
+
   it('turns 0 into -0 and keeps typing negative', () => {
-    expect(showing(run([toggleSign])).display).toBe('-0')
-    expect(showing(run([toggleSign, digits('5')])).display).toBe('-5')
+    expect(showing(run([toggleSign])).display).toBe('−0')
+    expect(showing(run([toggleSign, digits('5')])).display).toBe('−5')
   })
 
   it('negates a computed value and drops its label', () => {
@@ -279,7 +283,7 @@ describe('toggle sign', () => {
     expect(showing(root).expression).toBe('√(16)')
 
     expect(showing(run([toggleSign], root))).toEqual({
-      display: '-4',
+      display: '−4',
       expression: '',
     })
   })
@@ -291,14 +295,14 @@ describe('toggle sign', () => {
     )
 
     expect(showing(run([toggleSign], done))).toEqual({
-      display: '-5',
+      display: '−5',
       expression: '',
     })
   })
 
   it('starts a negative entry right after an operator', () => {
     const state = run([digits('5'), operator('add'), toggleSign])
-    expect(showing(state).display).toBe('-0')
+    expect(showing(state).display).toBe('−0')
 
     const waiting = run([digits('3'), equals], state)
     expect(pendingOf(waiting).request).toEqual({

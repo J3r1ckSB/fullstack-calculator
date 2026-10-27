@@ -7,7 +7,7 @@ import {
   type MathErrorCode,
 } from '../api/client'
 import { messages } from '../messages'
-import { formatNumber, roundResult } from './format'
+import { formatNumber, roundResult, toDisplayMinus } from './format'
 
 // DBL_DIG: a decimal with this many digits survives a round trip through float64.
 const MAX_ENTRY_DIGITS = 15
@@ -312,9 +312,10 @@ function displayOf({
   accumulator,
 }: CalculatorState): string {
   if (errorCode) return messages.mathErrors[errorCode]
-  if (operand?.kind === 'typed') return operand.text
-  if (operand?.kind === 'computed') return formatNumber(operand.value)
-  return accumulator === null ? '' : formatNumber(accumulator)
+  if (operand?.kind === 'typed') return toDisplayMinus(operand.text)
+  if (operand?.kind === 'computed')
+    return toDisplayMinus(formatNumber(operand.value))
+  return accumulator === null ? '' : toDisplayMinus(formatNumber(accumulator))
 }
 
 function expressionOf(state: CalculatorState): string {
@@ -323,7 +324,7 @@ function expressionOf(state: CalculatorState): string {
   const label = operand?.kind === 'computed' ? operand.label : undefined
   if (operator !== null && accumulator !== null) {
     const left = `${formatNumber(accumulator)} ${messages.operatorSymbols[operator]}`
-    return label ? `${left} ${label}` : left
+    return toDisplayMinus(label ? `${left} ${label}` : left)
   }
-  return lastExpression ?? label ?? ''
+  return toDisplayMinus(lastExpression ?? label ?? '')
 }

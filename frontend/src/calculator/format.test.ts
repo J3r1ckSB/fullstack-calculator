@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatNumber, roundResult } from './format'
+import { formatNumber, roundResult, toDisplayMinus } from './format'
 
 describe('formatNumber', () => {
   it.each([
@@ -16,6 +16,16 @@ describe('formatNumber', () => {
     [Number.MAX_VALUE, '1.7976931348623157e+308'],
   ])('formats %s as %s', (value, expected) => {
     expect(formatNumber(value)).toBe(expected)
+  })
+})
+
+describe('toDisplayMinus', () => {
+  it.each([
+    ['-12', '−12'],
+    ['1.2e-8', '1.2e−8'],
+    ['5', '5'],
+  ])('shows %s as %s', (text, expected) => {
+    expect(toDisplayMinus(text)).toBe(expected)
   })
 })
 

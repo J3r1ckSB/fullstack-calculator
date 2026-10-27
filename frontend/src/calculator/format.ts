@@ -10,3 +10,9 @@ export function roundResult(value: number): number {
 export function formatNumber(value: number): string {
   return String(roundResult(value))
 }
+
+// The minus sign U+2212 matches the subtract key; the ASCII hyphen-minus stays
+// in the values that are sent or stored.
+export function toDisplayMinus(text: string): string {
+  return text.replaceAll('-', '−')
+}
