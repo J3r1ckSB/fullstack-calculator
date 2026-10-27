@@ -2,7 +2,7 @@
 
 The review's unverified minor findings and the walkthrough's small ones, one lane per area in separate worktrees, followed by an integration lane that rebased them onto `main`. The styles lane stopped and reported that its contrast target could not be met against the equals key's own fill; the same brief was then given to a stronger model, which kept the target that can be met, against the card surface the ring sits on.
 
-Each agent also received Claude Code's own system prompt and my global working rules, which are not reproduced here. Paths under my home directory are shortened to `~`. Everything else is verbatim.
+Each agent also received Claude Code's own system prompt and my global working rules, which are not reproduced here. Paths under my home directory are shortened to `~`, and the session's temporary directory to `<scratch>`. Everything else is verbatim.
 
 ## Static files
 
@@ -86,12 +86,12 @@ Rules:
 There are two issues in frontend/src/styles.css, with one commit each.
 
 Issue 1: the keyboard focus ring on the "=" key is the same color as the key itself (".key:focus-visible" uses var(--focus); the equals key's fill is the same blue in light mode, #1d4ed8, and nearly the same in dark mode). Only the 2px gap shows, so it reads as a thicker border, not a focus ring. The ring on the other keys is clear.
-Fix: give the equals key's focus outline a color that contrasts at least 3:1 with both the equals key's fill and the card surface, in both themes. Use the existing text color custom property, var(--text), unless your contrast computation shows it fails, in which case report the numbers and pick another existing token. Compute the ratios with a short script (an example is /private/tmp/claude-501/-Users-j3r1ck-Documents-Claude-Code/d076d1e2-bd32-4429-b8a8-412327240a78/scratchpad/contrast.mjs) and put them in "checks".
+Fix: give the equals key's focus outline a color that contrasts at least 3:1 with both the equals key's fill and the card surface, in both themes. Use the existing text color custom property, var(--text), unless your contrast computation shows it fails, in which case report the numbers and pick another existing token. Compute the ratios with a short script (an example is <scratch>/contrast.mjs) and put them in "checks".
 Commit subject: "fix(frontend): make the focus ring visible on the equals key".
 
 Issue 2: at a 320px viewport, the error hint "Enter a number or press AC to start over" wraps with the single word "over" on its second line.
 Fix: add "text-wrap: balance" to the expression line rule (.expression), so wrapped lines come out even. Browsers without support simply wrap as before.
-Verify in headless Google Chrome (/Applications/Google Chrome.app) at 320x640 against "npx vite preview --port 4176 --strictPort" after "npm run build": set the expression element's text to the hint, then measure the line boxes, for example with a Range over its text node and getClientRects. Confirm that each line holds more than one word. /private/tmp/claude-501/-Users-j3r1ck-Documents-Claude-Code/d076d1e2-bd32-4429-b8a8-412327240a78/scratchpad/heights/h.mjs shows how to drive Chrome over the DevTools Protocol with Node's built-in WebSocket. Keep your script outside the repository.
+Verify in headless Google Chrome (/Applications/Google Chrome.app) at 320x640 against "npx vite preview --port 4176 --strictPort" after "npm run build": set the expression element's text to the hint, then measure the line boxes, for example with a Range over its text node and getClientRects. Confirm that each line holds more than one word. <scratch>/heights/h.mjs shows how to drive Chrome over the DevTools Protocol with Node's built-in WebSocket. Keep your script outside the repository.
 Commit subject: "fix(frontend): balance the wrapped expression line".
 
 Checks before each commit, from frontend/: "npm run lint", "npm run format:check", "npm run typecheck", "npm test", "npm run build".

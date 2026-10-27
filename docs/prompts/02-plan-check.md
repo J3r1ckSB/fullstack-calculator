@@ -2,7 +2,7 @@
 
 A second model, in a fresh context and before any code existed, checked the spec. It ran small experiments rather than reasoning from memory. It returned 13 issues, and all were folded into the spec.
 
-Each agent also received Claude Code's own system prompt and my global working rules, which are not reproduced here. Paths under my home directory are shortened to `~`. Everything else is verbatim.
+Each agent also received Claude Code's own system prompt and my global working rules, which are not reproduced here. Paths under my home directory are shortened to `~`, and the session's temporary directory to `<scratch>`. Everything else is verbatim.
 
 ## Plan check
 
@@ -34,7 +34,7 @@ The full spec is at `~/.claude/task-plans/fullstack-calculator/2026-10-26-spec.m
 4. After the build, a multi-reviewer code review and a visual walkthrough of the UI, then fixes.
 
 ## Environment
-Go 1.27.3 and Node 26.5.1 are installed. You may run small experiments in `/private/tmp/claude-501/-Users-j3r1ck-Documents-Claude-Code/d076d1e2-bd32-4429-b8a8-412327240a78/scratchpad/plancheck/`; create it and run code there with `go run` or `node`. Prefer checking a behavior over reasoning about it, especially:
+Go 1.27.3 and Node 26.5.1 are installed. You may run small experiments in `<scratch>/plancheck/`; create it and run code there with `go run` or `node`. Prefer checking a behavior over reasoning about it, especially:
 - Go 1.27's `encoding/json` v1 error types and values for the decode cases in spec §3: an empty body, `[1,2]`, `{"a":"1"}`, `1e400`, an unknown field, trailing data via `dec.Token()`, and `UnmarshalTypeError.Field` and `.Value` contents.
 - Whether the Go 1.22+ `ServeMux` pattern set in spec §3 registers without a conflict panic and routes each contract example as intended (`POST /api/v1/{operation}`, `/api/v1/{operation}`, `GET /healthz`, `/api/`, `/`).
 - `math.Pow`, `math.Sqrt` and -0 behaviors the spec relies on, and the percentage overflow fallback.
