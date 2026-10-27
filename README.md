@@ -73,26 +73,35 @@ npm run coverage
 Backend:
 
 ```text
-ok  	github.com/J3r1ckSB/fullstack-calculator/backend/cmd/server	1.153s	coverage: 31.7% of statements
-ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/calculator	1.137s	coverage: 100.0% of statements
-ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/httpapi	1.175s	coverage: 96.3% of statements
+ok  	github.com/J3r1ckSB/fullstack-calculator/backend/cmd/server	1.161s	coverage: 31.7% of statements
+ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/calculator	1.159s	coverage: 100.0% of statements
+ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/httpapi	1.184s	coverage: 97.3% of statements
 ```
 
 `cmd/server` is low because only `loadConfig` has tests. `main` and `run` (listening and graceful shutdown) do not.
 
-Frontend. Vitest leaves files at 100% on every metric out of the table.
+Frontend. The table lists every file, fully covered ones included: `vite.config.ts` does not set `skipFull`, so Vitest keeps its default of showing them. Vitest hides fully covered files on its own only when it detects an AI coding agent running it. `styles.css` is listed with zeros because `include` takes everything under `src/`.
 
 ```text
 -------------------|---------|----------|---------|---------|-------------------
 File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
 -------------------|---------|----------|---------|---------|-------------------
-All files          |   98.56 |     97.1 |     100 |   99.42 |
+All files          |   98.61 |     97.1 |     100 |   99.45 |
+ src               |     100 |      100 |     100 |     100 |
+  App.tsx          |     100 |      100 |     100 |     100 |
+  messages.ts      |     100 |      100 |     100 |     100 |
+  styles.css       |       0 |        0 |       0 |       0 |
  src/api           |     100 |    97.61 |     100 |     100 |
-  client.ts        |     100 |    97.61 |     100 |     100 | 123
+  client.ts        |     100 |    97.61 |     100 |     100 | 130
  src/calculator    |     100 |    99.09 |     100 |     100 |
+  format.ts        |     100 |      100 |     100 |     100 |
   state.ts         |     100 |       99 |     100 |     100 | 317
+  useCalculator.ts |     100 |      100 |     100 |     100 |
  src/components    |    92.1 |    85.71 |     100 |   96.55 |
-  Display.tsx      |   72.72 |       70 |     100 |   85.71 | 9
+  Calculator.tsx   |     100 |      100 |     100 |     100 |
+  Display.tsx      |   72.72 |       70 |     100 |   85.71 | 10
+  Keypad.tsx       |     100 |      100 |     100 |     100 |
+  keys.ts          |     100 |      100 |     100 |     100 |
 -------------------|---------|----------|---------|---------|-------------------
 ```
 
@@ -176,21 +185,21 @@ curl -s -w '\nHTTP %{http_code}\n' -X POST localhost:8080/api/v1/modulo -H 'Cont
 HTTP 404
 ```
 
-| Status | Code                     | When                                                                                                                                                                          |
-| ------ | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 400    | `invalid_request`        | The body is empty, not valid JSON, not an object or has trailing data. An operand is missing, null, not a number or out of range. A field is unknown, or `sqrt` receives `b`. |
-| 404    | `unknown_operation`      | `POST /api/v1/{operation}` with an operation not in the table.                                                                                                                |
-| 404    | `not_found`              | Any other unknown route.                                                                                                                                                      |
-| 405    | `method_not_allowed`     | A method other than POST on an operation, with `Allow: POST`.                                                                                                                 |
-| 413    | `request_too_large`      | The body is larger than 4096 bytes.                                                                                                                                           |
-| 415    | `unsupported_media_type` | The Content-Type is not `application/json`. A charset parameter is allowed.                                                                                                   |
-| 422    | `division_by_zero`       | Division by 0, or `power` with a = 0 and b < 0.                                                                                                                               |
-| 422    | `negative_square_root`   | `sqrt` with a < 0.                                                                                                                                                            |
-| 422    | `undefined_result`       | The result is NaN, for example (-8)^0.5.                                                                                                                                      |
-| 422    | `result_out_of_range`    | The result is infinite, for example 10^400.                                                                                                                                   |
-| 500    | `internal_error`         | An unexpected failure, such as a recovered panic.                                                                                                                             |
+| Status | Code                     | When                                                                                                                                                                                                                                                      |
+| ------ | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400    | `invalid_request`        | The body is empty, not valid JSON, not an object or has trailing data. An operand is missing, null, not a number or out of range. A field is unknown, or `sqrt` receives `b`. The body could not be read, for example when the connection drops mid-body. |
+| 404    | `unknown_operation`      | `POST /api/v1/{operation}` with an operation not in the table.                                                                                                                                                                                            |
+| 404    | `not_found`              | Any other unknown route.                                                                                                                                                                                                                                  |
+| 405    | `method_not_allowed`     | A method other than POST on an operation, with `Allow: POST`.                                                                                                                                                                                             |
+| 413    | `request_too_large`      | The body is larger than 4096 bytes.                                                                                                                                                                                                                       |
+| 415    | `unsupported_media_type` | The Content-Type is not `application/json`. A charset parameter is allowed.                                                                                                                                                                               |
+| 422    | `division_by_zero`       | Division by 0, or `power` with a = 0 and b < 0.                                                                                                                                                                                                           |
+| 422    | `negative_square_root`   | `sqrt` with a < 0.                                                                                                                                                                                                                                        |
+| 422    | `undefined_result`       | The result is NaN, for example (-8)^0.5.                                                                                                                                                                                                                  |
+| 422    | `result_out_of_range`    | The result is infinite, for example 10^400.                                                                                                                                                                                                               |
+| 500    | `internal_error`         | An unexpected failure, such as a recovered panic.                                                                                                                                                                                                         |
 
-`contract/examples.json` holds 30 request and response pairs. They cover every row above except 413 and 500, which the Go handler tests exercise directly. It is the executable contract: the Go handler tests and the frontend client tests both replay it.
+`contract/examples.json` holds 30 request and response pairs. They cover every row above except 413, 500 and the unreadable body of the 400 row, which the Go handler tests exercise directly. It is the executable contract: the Go handler tests and the frontend client tests both replay it.
 
 ## Project structure
 
