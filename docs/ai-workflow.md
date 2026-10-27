@@ -31,5 +31,14 @@ The prompts the agents worked from are in [`prompts/`](prompts/), verbatim.
    - an unreadable request body was answered 500 with its cause lost.
 6. **Walkthrough.** An Opus agent opened the production Docker image in a real browser and used the calculator as a person would: light and dark themes, 320 px, keyboard input, and the server stopped mid-session. It found the same layout problems from the user's side, plus the keypad moving vertically as values changed size. See [`prompts/04-review-and-walkthrough.md`](prompts/04-review-and-walkthrough.md).
 7. **Fixes.** One agent per defect, again in separate worktrees, each with a test or a real-browser measurement that fails without the fix. The layout fix was measured in headless Chrome at 320, 375 and 1280 px across every display state. A second walkthrough then checked the fixed screens. It found one problem the fix introduced: on a 320×640 screen, the connection notice pushed the bottom key row off the screen. That was fixed and measured the same way. See [`prompts/05-fixes.md`](prompts/05-fixes.md).
+8. **Minor fixes.** Claude Haiku 5.5 agents, one per area, fixed the smaller findings from the review and the walkthrough:
+   - the static file server listed directories;
+   - a gateway error from a proxy read as a server fault instead of an unreachable service;
+   - the declared Node versions were wider than the toolchain accepts;
+   - the focus ring vanished on the equals key;
+   - the hint wrapped with one word on its own line;
+   - negative numbers showed a hyphen instead of a minus sign.
+
+   The styles agent stopped and reported that its contrast target could not be met against the key's own fill. The same brief then went to Sonnet, which met the target that applies, against the card surface around the ring. See [`prompts/06-minor-fixes.md`](prompts/06-minor-fixes.md).
 
 The `Co-Authored-By` trailer on each commit names the model that wrote it.
