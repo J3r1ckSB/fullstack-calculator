@@ -2,6 +2,11 @@
 
 A calculator with a React and TypeScript interface and a Go REST API that does the arithmetic: add, subtract, multiply, divide, exponentiation, square root and percentage.
 
+<p>
+  <img src="docs/screenshot-light.png" alt="The calculator in light mode after 15 % of 80, showing 12" width="300">
+  <img src="docs/screenshot-dark.png" alt="The same calculator in dark mode" width="300">
+</p>
+
 ## Quick start with Docker
 
 ```sh
@@ -215,6 +220,7 @@ frontend/
 .github/workflows/      CI: both layers and the Docker build
 Dockerfile              builds the frontend and the server into one image
 Makefile                shortcuts for the commands above
+docs/                   how this was built, the prompts used, screenshots
 ```
 
 ## Design decisions and assumptions
@@ -238,3 +244,7 @@ Makefile                shortcuts for the commands above
 - Add Playwright end-to-end tests that drive the keypad against the real server.
 - Test `run` in `cmd/server`, including the shutdown path.
 - Add per-client rate limiting in front of the API.
+
+## How this was built
+
+With AI tooling, which the assignment allows. [`docs/ai-workflow.md`](docs/ai-workflow.md) describes the process, and [`docs/prompts/`](docs/prompts/) holds the prompts the agents worked from.
