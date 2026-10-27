@@ -53,6 +53,7 @@ func classify(err error) *apiError {
 			http.StatusRequestEntityTooLarge,
 			"request_too_large",
 			fmt.Sprintf("request body exceeds %d bytes", maxBodyBytes),
+			nil,
 		}
 	case errors.Is(err, io.EOF):
 		return badRequest("request body is empty")
@@ -72,5 +73,7 @@ func classify(err error) *apiError {
 	if msg, ok := strings.CutPrefix(err.Error(), "json: unknown field "); ok {
 		return badRequest("unknown field " + msg)
 	}
-	return internalError()
+	// Anything else is the body reader failing (a reset, the read timeout or
+	// broken chunked framing), which encoding/json returns unchanged.
+	return &apiError{http.StatusBadRequest, "invalid_request", "request body could not be read", err}
 }

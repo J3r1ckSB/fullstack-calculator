@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"mime"
 	"net/http"
 
@@ -21,7 +22,7 @@ var domainErrors = []struct {
 	{calculator.ErrOutOfRange, "result_out_of_range"},
 }
 
-func calculate(w http.ResponseWriter, r *http.Request) {
+func calculate(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
 	name := r.PathValue("operation")
 	op, ok := operations[name]
 	if !ok {
@@ -34,18 +35,18 @@ func calculate(w http.ResponseWriter, r *http.Request) {
 	}
 	in, apiErr := decodeOperands(w, r)
 	if apiErr != nil {
-		apiErr.write(w)
+		apiErr.write(w, r, logger)
 		return
 	}
 	a, b, apiErr := in.validate(name, op)
 	if apiErr != nil {
-		apiErr.write(w)
+		apiErr.write(w, r, logger)
 		return
 	}
 
 	result, err := op.apply(a, b)
 	if err != nil {
-		domainError(err).write(w)
+		domainError(err).write(w, r, logger)
 		return
 	}
 	writeJSON(w, http.StatusOK, resultResponse{Result: result})
@@ -75,8 +76,8 @@ func (in operands) validate(name string, op operation) (a, b float64, err *apiEr
 func domainError(err error) *apiError {
 	for _, d := range domainErrors {
 		if errors.Is(err, d.err) {
-			return &apiError{http.StatusUnprocessableEntity, d.code, err.Error()}
+			return &apiError{http.StatusUnprocessableEntity, d.code, err.Error(), nil}
 		}
 	}
-	return internalError()
+	return internalError(err)
 }

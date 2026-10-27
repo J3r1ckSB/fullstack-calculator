@@ -1,7 +1,9 @@
 package httpapi
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -10,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/iotest"
 )
 
 func discardLogger() *slog.Logger {
@@ -139,4 +142,38 @@ func TestRootWithoutStaticDir(t *testing.T) {
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
 	assertError(t, rec, http.StatusNotFound, "not_found", "no route for GET /")
+}
+
+func TestUnreadableBodyIsBadRequestAndLogsCause(t *testing.T) {
+	var logs bytes.Buffer
+	readErr := errors.New("connection reset by peer")
+	logger := slog.New(slog.NewJSONHandler(&logs, &slog.HandlerOptions{Level: slog.LevelWarn}))
+	h := NewHandler(Options{Logger: logger})
+
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/add", iotest.ErrReader(readErr))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+
+	assertError(t, rec, http.StatusBadRequest, "invalid_request", "request body could not be read")
+	var entry map[string]any
+	if err := json.Unmarshal(logs.Bytes(), &entry); err != nil {
+		t.Fatalf("want one warning line, got %q: %v", logs.String(), err)
+	}
+	if entry["level"] != "WARN" || entry["error"] != readErr.Error() {
+		t.Errorf("log entry = %v, want a WARN carrying %q", entry, readErr)
+	}
+}
+
+func TestDomainErrorKeepsUnexpectedCause(t *testing.T) {
+	cause := errors.New("unexpected failure")
+
+	got := domainError(cause)
+
+	if got.status != http.StatusInternalServerError || got.code != "internal_error" || got.message != "internal server error" {
+		t.Errorf("got %d %s %q, want 500 internal_error", got.status, got.code, got.message)
+	}
+	if !errors.Is(got.cause, cause) {
+		t.Errorf("cause = %v, want %v", got.cause, cause)
+	}
 }

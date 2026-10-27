@@ -50,7 +50,8 @@ func recovery(logger *slog.Logger, next http.Handler) http.Handler {
 					slog.Any("panic", v),
 					slog.String("stack", string(debug.Stack())),
 				)
-				internalError().write(w)
+				// The panic is already logged above, with its stack.
+				internalError(nil).write(w, r, logger)
 			}
 		}()
 		next.ServeHTTP(w, r)

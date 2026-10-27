@@ -23,7 +23,9 @@ func NewHandler(opts Options) http.Handler {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /api/v1/{operation}", calculate)
+	mux.HandleFunc("POST /api/v1/{operation}", func(w http.ResponseWriter, r *http.Request) {
+		calculate(w, r, logger)
+	})
 	mux.HandleFunc("/api/v1/{operation}", methodNotAllowed("POST"))
 	mux.HandleFunc("GET /healthz", health)
 	mux.HandleFunc("/api/", notFound)
