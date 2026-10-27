@@ -64,23 +64,29 @@ export function createCalculatorClient({
 }: CalculatorClientOptions = {}): CalculatorClient {
   return {
     async calculate({ operation, ...operands }, { signal } = {}) {
-      const timeout = new AbortController()
+      if (signal?.aborted) throw signal.reason
+      // AbortSignal.any is missing in some browsers Vite still builds for.
+      const controller = new AbortController()
+      let timedOut = false
       const timer = setTimeout(() => {
-        timeout.abort()
+        timedOut = true
+        controller.abort()
       }, timeoutMs)
+      const forwardAbort = () => {
+        controller.abort(signal?.reason)
+      }
+      signal?.addEventListener('abort', forwardAbort, { once: true })
       try {
         const response = await send(`${baseUrl}/${operation}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(operands),
-          signal: signal
-            ? AbortSignal.any([signal, timeout.signal])
-            : timeout.signal,
+          signal: controller.signal,
         })
         return await readResult(response)
       } catch (error) {
         if (signal?.aborted) throw error
-        if (timeout.signal.aborted) {
+        if (timedOut) {
           throw new CalculatorError(
             'timeout',
             'the service did not answer in time',
@@ -95,6 +101,7 @@ export function createCalculatorClient({
         })
       } finally {
         clearTimeout(timer)
+        signal?.removeEventListener('abort', forwardAbort)
       }
     },
   }

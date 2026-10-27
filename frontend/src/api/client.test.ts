@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import contract from '../../../contract/examples.json'
 import {
   CalculatorError,
@@ -266,6 +266,102 @@ describe('unreadable answers', () => {
     await expect(client.calculate(addRequest)).rejects.toMatchObject({
       kind: 'unreadable',
       status: 400,
+    })
+  })
+})
+
+describe('caller signal', () => {
+  it('rejects without calling fetch when the caller signal is already aborted', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    const send = fakeFetch(() => respond(200, { result: 3 }))
+    const client = createCalculatorClient({ fetch: send })
+
+    const error = await client
+      .calculate(addRequest, { signal: controller.signal })
+      .catch((e: unknown) => e)
+
+    expect(error).toBe(controller.signal.reason)
+    expect(send).not.toHaveBeenCalled()
+  })
+
+  it('stops listening to the caller signal once the call completes', async () => {
+    const controller = new AbortController()
+    const send = fakeFetch(() => respond(200, { result: 3 }))
+    const client = createCalculatorClient({ fetch: send })
+
+    await expect(
+      client.calculate(addRequest, { signal: controller.signal }),
+    ).resolves.toBe(3)
+    const [, init] = send.mock.calls[0]
+    controller.abort()
+
+    expect(init?.signal?.aborted).toBe(false)
+  })
+
+  describe('without AbortSignal.any', () => {
+    const original: unknown = Reflect.get(AbortSignal, 'any')
+
+    beforeEach(() => {
+      Reflect.set(AbortSignal, 'any', undefined)
+      expect(Reflect.get(AbortSignal, 'any')).toBeUndefined()
+    })
+
+    afterEach(() => {
+      Reflect.set(AbortSignal, 'any', original)
+    })
+
+    const successes = contract.examples.filter(
+      (example) => example.response.status === 200 && clientCanProduce(example),
+    )
+
+    it.each(successes.map((example) => [example.name, example] as const))(
+      'resolves "%s" when a caller signal is passed',
+      async (_name, example) => {
+        const client = createCalculatorClient({
+          fetch: fakeFetch(() => respond(200, example.response.body)),
+        })
+        const operation = operationOf(
+          example,
+        ) as CalculationRequest['operation']
+        const request = {
+          operation,
+          ...example.request.body,
+        } as CalculationRequest
+
+        await expect(
+          client.calculate(request, { signal: new AbortController().signal }),
+        ).resolves.toBe((example.response.body as { result: number }).result)
+      },
+    )
+
+    it('rethrows the abort error unchanged when the caller aborts', async () => {
+      const controller = new AbortController()
+      const client = createCalculatorClient({ fetch: stalledFetch() })
+
+      const outcome = client.calculate(addRequest, {
+        signal: controller.signal,
+      })
+      controller.abort()
+
+      const error = await outcome.catch((e: unknown) => e)
+      expect(error).toBe(controller.signal.reason)
+      expect(error).not.toBeInstanceOf(CalculatorError)
+    })
+
+    it('reports no answer within timeoutMs as timeout', async () => {
+      vi.useFakeTimers()
+      const client = createCalculatorClient({
+        fetch: stalledFetch(),
+        timeoutMs: 500,
+      })
+
+      const outcome = expect(
+        client.calculate(addRequest, { signal: new AbortController().signal }),
+      ).rejects.toMatchObject({ kind: 'timeout' })
+      await vi.advanceTimersByTimeAsync(500)
+
+      await outcome
     })
   })
 })
