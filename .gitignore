@@ -12,6 +12,7 @@
 # Dependencies, builds and logs
 node_modules/
 dist/
+bin/
 *.log
 
 # Coverage output
