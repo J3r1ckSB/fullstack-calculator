@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import {
@@ -204,5 +204,102 @@ describe('Calculator', () => {
     expect(await screen.findByText('1 + 2 =')).toBeInTheDocument()
     expect(value()).toHaveAttribute('aria-busy', 'false')
     expectValue('3')
+  })
+
+  describe('keyboard', () => {
+    it('adds two numbers from key presses', async () => {
+      const { user, calls } = setup({ 'add 12 7': 19 })
+
+      await user.keyboard('12+7{Enter}')
+
+      expect(await screen.findByText('12 + 7 =')).toBeInTheDocument()
+      expectValue('19')
+      expect(calls).toEqual(['add 12 7'])
+    })
+
+    it.each([
+      ['+', 'add', '+'],
+      ['-', 'subtract', '−'],
+      ['*', 'multiply', '×'],
+      ['/', 'divide', '÷'],
+      ['^', 'power', '^'],
+      ['%', 'percentage', '% of'],
+    ])('presses %s as %s', async (key, operation, symbol) => {
+      const { user } = setup({ [`${operation} 6 3`]: 9 })
+
+      await user.keyboard(`6${key}3=`)
+
+      expect(await screen.findByText(`6 ${symbol} 3 =`)).toBeInTheDocument()
+      expectValue('9')
+    })
+
+    it.each(['.', ','])('enters a decimal point with %s', async (key) => {
+      const { user } = setup()
+
+      await user.keyboard(`1${key}5`)
+
+      expectValue('1.5')
+    })
+
+    it('backspaces and clears', async () => {
+      const { user } = setup()
+
+      await user.keyboard('123{Backspace}')
+      expectValue('12')
+      await user.keyboard('{Escape}')
+      expectValue('0')
+      await user.keyboard('45{Delete}')
+      expectValue('0')
+    })
+
+    it('applies Enter once when a digit button has focus', async () => {
+      const { user, calls } = setup()
+      await user.keyboard('5')
+      screen.getByRole('button', { name: '7' }).focus()
+
+      await user.keyboard('{Enter}')
+
+      expectValue('5')
+      expect(calls).toEqual([])
+    })
+
+    it('applies Enter once when the equals button has focus', async () => {
+      const { user, calls } = setup({ 'add 1 2': 3 })
+      await user.keyboard('1+2')
+      screen.getByRole('button', { name: name.equals }).focus()
+
+      await user.keyboard('{Enter}')
+
+      expect(await screen.findByText('1 + 2 =')).toBeInTheDocument()
+      expect(calls).toEqual(['add 1 2'])
+    })
+
+    it('cancels the keys it handles and no others', () => {
+      setup()
+
+      const handled = fireEvent.keyDown(window, { key: '/' })
+      const unhandled = fireEvent.keyDown(window, { key: 'a' })
+
+      expect(handled).toBe(false)
+      expect(unhandled).toBe(true)
+    })
+
+    it.each(['Control', 'Meta', 'Alt'])(
+      'leaves %s shortcuts alone',
+      async (modifier) => {
+        const { user } = setup()
+
+        await user.keyboard(`{${modifier}>}5{/${modifier}}`)
+        const notCancelled = fireEvent.keyDown(window, {
+          key: '5',
+          ctrlKey: modifier === 'Control',
+          metaKey: modifier === 'Meta',
+          altKey: modifier === 'Alt',
+        })
+
+        expectValue('0')
+        expect(notCancelled).toBe(true)
+      },
+    )
   })
 })
