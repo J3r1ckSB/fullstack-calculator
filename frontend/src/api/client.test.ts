@@ -223,6 +223,55 @@ describe('transport failures', () => {
       status: 500,
     })
   })
+
+  it('reports a 502 with an empty text/plain body as network', async () => {
+    const client = createCalculatorClient({
+      fetch: fakeFetch(
+        () =>
+          new Response('', {
+            status: 502,
+            headers: { 'Content-Type': 'text/plain' },
+          }),
+      ),
+    })
+
+    await expect(client.calculate(addRequest)).rejects.toMatchObject({
+      kind: 'network',
+      status: 502,
+    })
+  })
+
+  it('reports a 504 with an HTML body as network', async () => {
+    const client = createCalculatorClient({
+      fetch: fakeFetch(
+        () =>
+          new Response('<html>Gateway Timeout</html>', {
+            status: 504,
+            headers: { 'Content-Type': 'text/html' },
+          }),
+      ),
+    })
+
+    await expect(client.calculate(addRequest)).rejects.toMatchObject({
+      kind: 'network',
+      status: 504,
+    })
+  })
+
+  it('reports a 503 with the API error envelope as server', async () => {
+    const client = createCalculatorClient({
+      fetch: fakeFetch(() =>
+        respond(503, {
+          error: { code: 'internal_error', message: 'internal server error' },
+        }),
+      ),
+    })
+
+    await expect(client.calculate(addRequest)).rejects.toMatchObject({
+      kind: 'server',
+      status: 503,
+    })
+  })
 })
 
 describe('unreadable answers', () => {

@@ -107,9 +107,21 @@ export function createCalculatorClient({
   }
 }
 
+// A proxy in front of the service answers 502-504 when it cannot reach the
+// service. Only the API's own error envelope proves the service answered.
+const GATEWAY_STATUSES = [502, 503, 504]
+
 async function readResult(response: Response): Promise<number> {
   const { status } = response
   if (status >= 500) {
+    if (
+      GATEWAY_STATUSES.includes(status) &&
+      !hasErrorEnvelope(await response.text())
+    ) {
+      throw new CalculatorError('network', 'the service is unreachable', {
+        status,
+      })
+    }
     throw new CalculatorError('server', `the service answered ${status}`, {
       status,
     })
@@ -149,6 +161,14 @@ function readErrorDetail(
   const { code, message } = body.error
   if (typeof code !== 'string' || typeof message !== 'string') return undefined
   return { code, message }
+}
+
+function hasErrorEnvelope(text: string): boolean {
+  try {
+    return readErrorDetail(JSON.parse(text)) !== undefined
+  } catch {
+    return false
+  }
 }
 
 function unreadable(status: number, cause?: unknown): CalculatorError {
