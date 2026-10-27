@@ -78,9 +78,9 @@ npm run coverage
 Backend:
 
 ```text
-ok  	github.com/J3r1ckSB/fullstack-calculator/backend/cmd/server	1.161s	coverage: 31.7% of statements
-ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/calculator	1.159s	coverage: 100.0% of statements
-ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/httpapi	1.184s	coverage: 97.3% of statements
+ok  	github.com/J3r1ckSB/fullstack-calculator/backend/cmd/server	1.197s	coverage: 31.7% of statements
+ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/calculator	1.180s	coverage: 100.0% of statements
+ok  	github.com/J3r1ckSB/fullstack-calculator/backend/internal/httpapi	1.170s	coverage: 96.1% of statements
 ```
 
 `cmd/server` is low because only `loadConfig` has tests. `main` and `run` (listening and graceful shutdown) do not.
@@ -91,15 +91,15 @@ Frontend, over the TypeScript sources (`src/main.tsx` and the tests are excluded
 -------------------|---------|----------|---------|---------|-------------------
 File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
 -------------------|---------|----------|---------|---------|-------------------
-All files          |   98.61 |     97.1 |     100 |   99.45 |
+All files          |   98.66 |    97.17 |     100 |   99.47 |
  src               |     100 |      100 |     100 |     100 |
   App.tsx          |     100 |      100 |     100 |     100 |
   messages.ts      |     100 |      100 |     100 |     100 |
- src/api           |     100 |    97.61 |     100 |     100 |
-  client.ts        |     100 |    97.61 |     100 |     100 | 130
+ src/api           |     100 |    97.82 |     100 |     100 |
+  client.ts        |     100 |    97.82 |     100 |     100 | 142
  src/calculator    |     100 |    99.09 |     100 |     100 |
   format.ts        |     100 |      100 |     100 |     100 |
-  state.ts         |     100 |       99 |     100 |     100 | 317
+  state.ts         |     100 |       99 |     100 |     100 | 318
   useCalculator.ts |     100 |      100 |     100 |     100 |
  src/components    |    92.1 |    85.71 |     100 |   96.55 |
   Calculator.tsx   |     100 |      100 |     100 |     100 |
