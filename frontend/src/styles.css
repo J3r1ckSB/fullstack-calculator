@@ -51,12 +51,19 @@
 body {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100dvh;
   margin: 0;
   padding: 1rem;
   background: var(--page);
   color: var(--text);
+}
+
+/* The card's width is fixed here, never by its content. The top margin keeps
+   the card's top edge still when the notice makes the card taller. */
+#root {
+  width: min(100%, 22.5rem);
+  margin-top: 8dvh;
 }
 
 .visually-hidden {
@@ -69,8 +76,6 @@ body {
 }
 
 .calculator {
-  flex: 0 1 22.5rem;
-  min-width: 0;
   padding: 1rem;
   background: var(--surface);
   border-radius: calc(var(--radius) + 0.25rem);
@@ -78,6 +83,7 @@ body {
 }
 
 .display {
+  container-type: inline-size;
   position: relative;
   margin-bottom: 1rem;
   padding: 0.25rem 0.25rem 0;
@@ -98,25 +104,28 @@ body {
   display: block;
   margin-top: 0.25rem;
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
+  /* One fixed line, as tall as the largest size, so the keypad never moves. */
+  line-height: 3.3rem;
+  white-space: nowrap;
 }
 
-/* Widths assume digits of at most 0.6em inside a 256px content box. */
+/* cqi is the display's content width. Each size fits the longest string of its
+   bucket at 0.65em per character, and the rem caps are the sizes on wide
+   screens. */
 .value[data-size='xl'] {
-  font-size: 2.75rem;
+  font-size: min(2.75rem, 19cqi);
 }
 .value[data-size='l'] {
-  font-size: 2.125rem;
+  font-size: min(2.125rem, 12.5cqi);
 }
 .value[data-size='m'] {
-  font-size: 1.625rem;
+  font-size: min(1.625rem, 9.5cqi);
 }
 .value[data-size='s'] {
-  font-size: 1.25rem;
+  font-size: min(1.25rem, 7.5cqi);
 }
 .value[data-size='xs'] {
-  font-size: 1.0625rem;
+  font-size: min(1.0625rem, 6.2cqi);
 }
 
 /* Hidden until the request has been running for a moment, so fast answers

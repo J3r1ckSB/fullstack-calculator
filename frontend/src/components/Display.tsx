@@ -1,6 +1,7 @@
 import type { CalculatorView } from '../calculator/state'
 
-// The main value steps down so that 24 characters fit the narrowest card.
+// The main value steps down so that 24 characters fit on one line; styles.css
+// scales each size with the display's width.
 function sizeFor(length: number): string {
   if (length <= 8) return 'xl'
   if (length <= 12) return 'l'
