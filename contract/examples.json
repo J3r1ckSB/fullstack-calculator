@@ -1,0 +1,154 @@
+{
+  "examples": [
+    {
+      "name": "add two numbers",
+      "request": { "method": "POST", "path": "/api/v1/add", "body": { "a": 2, "b": 3 } },
+      "response": { "status": 200, "body": { "result": 5 } }
+    },
+    {
+      "name": "subtract two numbers",
+      "request": { "method": "POST", "path": "/api/v1/subtract", "body": { "a": 10, "b": 4 } },
+      "response": { "status": 200, "body": { "result": 6 } }
+    },
+    {
+      "name": "multiply a decimal",
+      "request": { "method": "POST", "path": "/api/v1/multiply", "body": { "a": 2.5, "b": 4 } },
+      "response": { "status": 200, "body": { "result": 10 } }
+    },
+    {
+      "name": "divide into a fraction",
+      "request": { "method": "POST", "path": "/api/v1/divide", "body": { "a": 1, "b": 4 } },
+      "response": { "status": 200, "body": { "result": 0.25 } }
+    },
+    {
+      "name": "raise to a power",
+      "request": { "method": "POST", "path": "/api/v1/power", "body": { "a": 2, "b": 10 } },
+      "response": { "status": 200, "body": { "result": 1024 } }
+    },
+    {
+      "name": "square root",
+      "request": { "method": "POST", "path": "/api/v1/sqrt", "body": { "a": 16 } },
+      "response": { "status": 200, "body": { "result": 4 } }
+    },
+    {
+      "name": "percentage of a number",
+      "request": { "method": "POST", "path": "/api/v1/percentage", "body": { "a": 15, "b": 80 } },
+      "response": { "status": 200, "body": { "result": 12 } }
+    },
+    {
+      "name": "float64 result is not rounded",
+      "request": { "method": "POST", "path": "/api/v1/add", "body": { "a": 0.1, "b": 0.2 } },
+      "response": { "status": 200, "body": { "result": 0.30000000000000004 } }
+    },
+    {
+      "name": "negative zero is normalized",
+      "request": { "method": "POST", "path": "/api/v1/multiply", "body": { "a": 0, "b": -5 } },
+      "response": { "status": 200, "body": { "result": 0 } }
+    },
+    {
+      "name": "divide by zero",
+      "request": { "method": "POST", "path": "/api/v1/divide", "body": { "a": 1, "b": 0 } },
+      "response": { "status": 422, "body": { "error": { "code": "division_by_zero", "message": "division by zero is undefined" } } }
+    },
+    {
+      "name": "zero to a negative power",
+      "request": { "method": "POST", "path": "/api/v1/power", "body": { "a": 0, "b": -1 } },
+      "response": { "status": 422, "body": { "error": { "code": "division_by_zero", "message": "division by zero is undefined" } } }
+    },
+    {
+      "name": "square root of a negative number",
+      "request": { "method": "POST", "path": "/api/v1/sqrt", "body": { "a": -9 } },
+      "response": { "status": 422, "body": { "error": { "code": "negative_square_root", "message": "square root of a negative number is not a real number" } } }
+    },
+    {
+      "name": "power without a real result",
+      "request": { "method": "POST", "path": "/api/v1/power", "body": { "a": -8, "b": 0.5 } },
+      "response": { "status": 422, "body": { "error": { "code": "undefined_result", "message": "result is not a real number" } } }
+    },
+    {
+      "name": "power out of range",
+      "request": { "method": "POST", "path": "/api/v1/power", "body": { "a": 10, "b": 400 } },
+      "response": { "status": 422, "body": { "error": { "code": "result_out_of_range", "message": "result is outside the representable range" } } }
+    },
+    {
+      "name": "product out of range",
+      "request": { "method": "POST", "path": "/api/v1/multiply", "body": { "a": 1e308, "b": 10 } },
+      "response": { "status": 422, "body": { "error": { "code": "result_out_of_range", "message": "result is outside the representable range" } } }
+    },
+    {
+      "name": "missing operand",
+      "request": { "method": "POST", "path": "/api/v1/add", "body": { "a": 1 } },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "missing operand \"b\"" } } }
+    },
+    {
+      "name": "null operand",
+      "request": { "method": "POST", "path": "/api/v1/add", "body": { "a": 1, "b": null } },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "missing operand \"b\"" } } }
+    },
+    {
+      "name": "operand is a string",
+      "request": { "method": "POST", "path": "/api/v1/add", "body": { "a": "1", "b": 2 } },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "operand \"a\" must be a number" } } }
+    },
+    {
+      "name": "operand out of range",
+      "request": { "method": "POST", "path": "/api/v1/add", "rawBody": "{\"a\":1e400,\"b\":1}" },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "operand \"a\" is outside the representable range" } } }
+    },
+    {
+      "name": "unknown field",
+      "request": { "method": "POST", "path": "/api/v1/add", "body": { "a": 1, "b": 2, "c": 3 } },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "unknown field \"c\"" } } }
+    },
+    {
+      "name": "extra operand for square root",
+      "request": { "method": "POST", "path": "/api/v1/sqrt", "body": { "a": 4, "b": 2 } },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "operation \"sqrt\" takes only operand \"a\"" } } }
+    },
+    {
+      "name": "malformed JSON",
+      "request": { "method": "POST", "path": "/api/v1/add", "rawBody": "{\"a\": 1," },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "request body is not valid JSON" } } }
+    },
+    {
+      "name": "body is not an object",
+      "request": { "method": "POST", "path": "/api/v1/add", "body": [1, 2] },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "request body must be a JSON object" } } }
+    },
+    {
+      "name": "trailing data after the object",
+      "request": { "method": "POST", "path": "/api/v1/add", "rawBody": "{\"a\":1,\"b\":2} {\"a\":3}" },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "request body must contain a single JSON object" } } }
+    },
+    {
+      "name": "empty body",
+      "request": { "method": "POST", "path": "/api/v1/add", "rawBody": "" },
+      "response": { "status": 400, "body": { "error": { "code": "invalid_request", "message": "request body is empty" } } }
+    },
+    {
+      "name": "wrong content type",
+      "request": { "method": "POST", "path": "/api/v1/add", "headers": { "Content-Type": "text/plain" }, "rawBody": "{\"a\":1,\"b\":2}" },
+      "response": { "status": 415, "body": { "error": { "code": "unsupported_media_type", "message": "Content-Type must be application/json" } } }
+    },
+    {
+      "name": "unknown operation",
+      "request": { "method": "POST", "path": "/api/v1/modulo", "body": { "a": 1, "b": 2 } },
+      "response": { "status": 404, "body": { "error": { "code": "unknown_operation", "message": "unknown operation \"modulo\"" } } }
+    },
+    {
+      "name": "wrong method",
+      "request": { "method": "GET", "path": "/api/v1/add" },
+      "response": { "status": 405, "headers": { "Allow": "POST" }, "body": { "error": { "code": "method_not_allowed", "message": "method GET not allowed; use POST" } } }
+    },
+    {
+      "name": "unknown route",
+      "request": { "method": "GET", "path": "/api/v2/add" },
+      "response": { "status": 404, "body": { "error": { "code": "not_found", "message": "no route for GET /api/v2/add" } } }
+    },
+    {
+      "name": "health check",
+      "request": { "method": "GET", "path": "/healthz" },
+      "response": { "status": 200, "body": { "status": "ok" } }
+    }
+  ]
+}
